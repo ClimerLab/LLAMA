@@ -256,8 +256,8 @@ void ClusteringResults::runGA_Core(Graph &g, const std::string &clust_filename)
 	std::size_t cur_chrom, node_to_cross, clust_cross_mut_count, clust_to_cross_index,max_gen, final_gen, cross_offset;
 	double best_fitness;
 	double max_fit, avg_fit;
-	std::size_t max_clust, min_clust, avg_clust;
-	bool num_cluts_changed = false;
+	std::size_t max_clust, min_clust, avg_clust, best_gen = 0;
+	bool num_cluts_changed = false, stead_state = false;
 	std::vector<std::size_t> tournament_pool(TOUR_SIZE);
 
 	// Approximatly 80% of the children, after the elites are copied should be created by crossover. This value should be an even number.
@@ -312,7 +312,10 @@ void ClusteringResults::runGA_Core(Graph &g, const std::string &clust_filename)
 	best_fitness = pop[parent_gen][chrom_index[0]].getFitness();
 	
 	// Loop through evolution code until desired number of generations is reached
-	while (generation < max_gen)
+	//while (generation < max_gen)
+
+	// Loop through the evolutiond code until the best objective value reaches steady-state
+	while(!stead_state)
 	{
 		// Increment the generation counter
 		++generation;
@@ -488,10 +491,16 @@ void ClusteringResults::runGA_Core(Graph &g, const std::string &clust_filename)
 		// Check if the fitness has improved
 		Chromosome *tmp = getSortedChromosome(!parent_gen, 0);
 		double tmp_fit = tmp->getFitness();
-		if (tmp_fit > best_fitness)
+		if (tmp_fit > best_fitness + FITNESS_TOL)
 		{
 			best_fitness = tmp_fit;
 			tmp->setGenerationCreated(generation);
+			best_gen = generation;
+		}
+
+		if (generation - best_gen > STEADY_STATE_DURATION)
+		{
+			stead_state = true;
 		}
 
 		// Change the parent generation

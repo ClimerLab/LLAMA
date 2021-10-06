@@ -7,6 +7,10 @@
 #include "SplitMem.h"
 #include <vector>
 
+
+const double FITNESS_TOL = 0.00001;
+const std::size_t STEADY_STATE_DURATION = 500;
+
 enum InitType
 {
 	unweighted_split = 0,

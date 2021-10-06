@@ -1,9 +1,9 @@
 #!/bin/bash
 
-GML_FILE=/media/ken/ExtraSpace/School/Research/DataSets/networks/as_22july06.graph
+GML_FILE=/media/ken/ExtraSpace/School/Research/DataSets/networks/football.gml
 RESULTS_DIR=/media/ken/ExtraSpace/School/Research/LLAMA/
-OUTPUT_TAG=as_22july06
-NUM_ISLANDS=10
+OUTPUT_TAG=football_steadystate_Q
+NUM_ISLANDS=30
 CFG_FILE=LLAMA_Q.cfg
 
 OUTPUT_DIR=$RESULTS_DIR$OUTPUT_TAG/
@@ -79,7 +79,7 @@ do
 					((COMPLETED_ISLANDS = COMPLETED_ISLANDS + 1))
 				else
 					# Call LLAMA
-					./LLAMA "$OUTPUT_DIR$OUTPUT_TAG"_comp"$CUR_COMP".gml $CFG_FILE $TOTAL_NODES $TOTAL_EDGES $OUTPUT_DIR $OUTPUT_TAG $CUR_ISLAND $STATS_DIR $NUM_ISLANDS
+					./LLAMA "$OUTPUT_DIR$OUTPUT_TAG"_comp"$CUR_COMP".gml $CFG_FILE $TOTAL_NODES $TOTAL_EDGES $OUTPUT_DIR $OUTPUT_TAG $CUR_ISLAND $STATS_DIR #$NUM_ISLANDS
 				fi
 			fi
 		done	
