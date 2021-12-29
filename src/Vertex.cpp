@@ -2,56 +2,45 @@
 #include "assert.h"
 #include <stdio.h>
 
-Vertex::Vertex() :  vertex_weight(0.0)
-{    
+Vertex::Vertex() :  vertex_weight(0.0) {    
 }
 
-Vertex::~Vertex()
-{
+Vertex::~Vertex() {
 }
 
-std::size_t Vertex::getDegree() const
-{
-    return edges.size();
+std::size_t Vertex::getDegree() const {
+  return edges.size();
 }
 
-double Vertex::getVertexWeight() const
-{
-    return vertex_weight;
+double Vertex::getVertexWeight() const {
+  return vertex_weight;
 }
 
-double Vertex::getEdgeWeight(const std::size_t index) const
-{
-    assert(index < edges.size());
-
-    return edges[index].getWeight();
+double Vertex::getEdgeWeight(const std::size_t index) const {
+  assert(index < edges.size());
+  return edges[index].getWeight();
 }
 
-std::size_t Vertex::getTargetId(const std::size_t index) const
-{
-    assert(index < edges.size());
-
-    return edges[index].getTargetId();
+std::size_t Vertex::getTargetId(const std::size_t index) const {
+  assert(index < edges.size());
+  return edges[index].getTargetId();
 }
 
-void Vertex::setEdgeWeight(const std::size_t index, const double weight)
-{
-    assert(index < edges.size());
-    edges[index].setWeight(weight);
+void Vertex::setEdgeWeight(const std::size_t index, const double weight) {
+  assert(index < edges.size());
+  edges[index].setWeight(weight);
 }
-bool Vertex::addEdge(const std::size_t target_id, double weight)
-{
-    bool edge_added = false;
-    Edge new_edge(target_id, weight);
 
-    if(!isAdjacent(target_id))
-    {
-        edges.push_back(new_edge);
-        vertex_weight += weight;
-        edge_added = true;
-    }        
+bool Vertex::addEdge(const std::size_t target_id, double weight) {
+  bool edge_added = false;
+  Edge new_edge(target_id, weight);
 
-    return edge_added;
+  if(!isAdjacent(target_id)) {
+    edges.push_back(new_edge);
+    vertex_weight += weight;
+    edge_added = true;
+  }        
+  return edge_added;
 }
 
 bool Vertex::removeEdgeById(const std::size_t target_id)
@@ -71,19 +60,15 @@ bool Vertex::removeEdgeById(const std::size_t target_id)
     return edge_removed;
 }
 
-bool Vertex::isAdjacent(const std::size_t target_id) const
-{
-    bool id_found = false;
-    for(std::size_t i = 0; i < edges.size(); ++i)
-    {
-        if(edges[i].getTargetId() == target_id)
-        {
-            id_found = true;
-            break;            
-        }
+bool Vertex::isAdjacent(const std::size_t target_id) const {
+  bool id_found = false;
+  for(std::size_t i = 0; i < edges.size(); ++i) {
+    if(edges[i].getTargetId() == target_id) {
+      id_found = true;
+      break;
     }
-
-    return id_found;
+  }
+  return id_found;
 }
 
 void Vertex::swapEdges(const std::size_t index1, const std::size_t index2)

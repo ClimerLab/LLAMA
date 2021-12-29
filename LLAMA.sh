@@ -1,8 +1,8 @@
 #!/bin/bash
 
-GML_FILE=/media/ken/ExtraSpace/School/Research/DataSets/networks/football.gml
+GML_FILE=/media/ken/ExtraSpace/School/Research/DataSets/networks/celegansneural.graph
 RESULTS_DIR=/media/ken/ExtraSpace/School/Research/LLAMA/
-OUTPUT_TAG=football_steadystate_Q
+OUTPUT_TAG=celegansneural_steadystate_Q
 NUM_ISLANDS=30
 CFG_FILE=LLAMA_Q.cfg
 

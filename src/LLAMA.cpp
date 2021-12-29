@@ -256,9 +256,6 @@ int main(int argc, char **argv)
 	// Initialize crossover type
 	results.setCrossType(parser.getBool("START_CROSS_TYPE"));
 
-
-	fprintf(stderr, "Using Migration: %s\n", results.getUsingMigration() ? "True" : "False");
-
 	// Run the Cluster GA
 	results.runGA_Core(my_graph, temp_cluster_output);
 	

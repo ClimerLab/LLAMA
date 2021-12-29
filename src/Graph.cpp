@@ -9,74 +9,58 @@
 #include <algorithm>
 
 Graph::Graph() :	num_edges(0),
-					total_num_nodes(0),
-					total_num_edges(0),
-					weighted(false)
-{
+									total_num_nodes(0),
+									total_num_edges(0),
+									weighted(false) {}
+
+Graph::~Graph(){}
+
+std::size_t Graph::getNumNodes() const {
+  return vertices.size();
 }
 
-Graph::~Graph()
-{
+std::size_t Graph::getNumEdges() const {
+	return num_edges;
 }
 
-std::size_t Graph::getNumNodes() const
-{
-    return vertices.size();
-}
-std::size_t Graph::getNumEdges() const
-{
-    return num_edges;
-}
-
-std::size_t Graph::getTotalNumNodes() const
-{
+std::size_t Graph::getTotalNumNodes() const {
 	return total_num_nodes;
 }
 
-std::size_t Graph::getTotalNumEdges() const
-{
+std::size_t Graph::getTotalNumEdges() const {
 	return total_num_edges;
 }
 
-Vertex* Graph::getPtrToVertex(const std::size_t index)
-{
-    assert(index < vertices.size());
-
-    return &(vertices[index]);
+Vertex* Graph::getPtrToVertex(const std::size_t index) {
+	assert(index < vertices.size());
+	return &(vertices[index]);
 }
 
-void Graph::setTotalNumNodes(const std::size_t _num_nodes)
-{
+void Graph::setTotalNumNodes(const std::size_t _num_nodes) {
 	total_num_nodes = _num_nodes;
 }
 
-void Graph::setTotalNumEdges(const std::size_t _num_edges)
-{
+void Graph::setTotalNumEdges(const std::size_t _num_edges) {
 	total_num_edges = _num_edges;
 }
 
-void Graph::readFile(const std::string &file_name)
-{
-    // Check if the file has a '.gml' extension
-	if (file_name.find(".gml", file_name.size() - 4) != std::string::npos)
-	{
+void Graph::readFile(const std::string &file_name) {
+	// Check if the file has a '.gml' extension
+	if (file_name.find(".gml", file_name.size() - 4) != std::string::npos) {
 		readGML(file_name); // Read in file as .gml
 	}
 	// Check if the file has a '.graph' extension
-	else if (file_name.find(".graph", file_name.size() - 6) != std::string::npos)
-	{
-		readGraph(file_name); // Read in file as .graph		
+	else if (file_name.find(".graph", file_name.size() - 6) != std::string::npos) {
+		readGraph(file_name); // Read in file as .graph
 	}
-	else
-	{
-        std::cerr << "ERROR - Input file type not recongnized." << std::endl;
-        exit(1);
-	}	
+	else {
+		std::cerr << "ERROR - Input file type not recongnized." << std::endl;
+		exit(1);
+	}
 }
 
-void Graph::readGML(const std::string &file_name)
-{
-    // Declare local variable
+void Graph::readGML(const std::string &file_name) {
+	// Declare local variable
 	FILE *input;
 	char tmp_str[50];
 	std::size_t min_node, max_node, i_node, tmp_id, tmp_source, tmp_target;
@@ -84,38 +68,33 @@ void Graph::readGML(const std::string &file_name)
 	float tmp_weight;
 	tmp_str[0] = '\0';
 
-    std::size_t num_nodes = 0;
-    std::vector<std::size_t> node_id_conv;
+	std::size_t num_nodes = 0;
+	std::vector<std::size_t> node_id_conv;
 
 	// Try to open file
-    if((input = fopen(file_name.c_str(), "r")) == NULL)
-    {
-        std::cerr << "ERROR in Graph::ReadGML - Could not open file (" << file_name.c_str() << ")." << std::endl;
+	if((input = fopen(file_name.c_str(), "r")) == NULL) {
+		std::cerr << "ERROR in Graph::ReadGML - Could not open file (" << file_name.c_str() << ")." << std::endl;
 		exit(1);
 	}
 
 	// Read file until start of graph is reahed
-	while (true)
-	{
+	while (true) {
 		// Read in next string
-		if (fscanf(input, "%s", tmp_str) <= 0)
-		{
-            std::cerr << "ERROR in Graph::ReadGML - Beginning of graph was not found. No data." << std::endl;
+		if (fscanf(input, "%s", tmp_str) <= 0) {
+			std::cerr << "ERROR in Graph::ReadGML - Beginning of graph was not found. No data." << std::endl;
 			fclose(input);
 			exit(1);
 		}
 
 		// Check if end-of-file was reached
-		if (feof(input))
-		{
-            std::cerr << "ERROR in Graph::ReadGML - Beginning of graph was not found. EOF reached." << std::endl;
+		if (feof(input)) {
+			std::cerr << "ERROR in Graph::ReadGML - Beginning of graph was not found. EOF reached." << std::endl;
 			fclose(input);
 			exit(1);
 		}
 
 		// Check if the start of the graph was reached
-		if (strncmp(tmp_str, "graph", 5) == 0)
-		{
+		if (strncmp(tmp_str, "graph", 5) == 0) {
 			break; // Break from while loop
 		}
 	}
@@ -126,7 +105,7 @@ void Graph::readGML(const std::string &file_name)
 		// Read in next string
 		if (fscanf(input, "%s", tmp_str) <= 0)
 		{
-            std::cerr << "ERROR in Graph::ReadGML - Number of nodes was not found." << std::endl;
+			std::cerr << "ERROR in Graph::ReadGML - Number of nodes was not found." << std::endl;
 			fclose(input);
 			exit(1);
 		}
@@ -275,7 +254,7 @@ void Graph::readGML(const std::string &file_name)
 			// Read in next string
 			if (fscanf(input, "%s", tmp_str) <= 0)
 			{
-                std::cerr << "ERROR in Graph::ReadGML - Source was not found." << std::endl;
+        std::cerr << "ERROR in Graph::ReadGML - Source was not found." << std::endl;
 				fclose(input);
 				exit(1);
 			}
@@ -293,7 +272,7 @@ void Graph::readGML(const std::string &file_name)
 			// Read in next string
 			if (fscanf(input, "%s", tmp_str) <= 0)
 			{
-                std::cerr << "ERROR in Graph::ReadGML - Target was not found." << std::endl;
+        std::cerr << "ERROR in Graph::ReadGML - Target was not found." << std::endl;
 				fclose(input);
 				exit(1);
 			}
@@ -308,7 +287,7 @@ void Graph::readGML(const std::string &file_name)
 			// Read in next string
 			if (fscanf(input, "%s", tmp_str) <= 0)
 			{
-                std::cerr << "ERROR in Graph::ReadGML - Error when trying to find edge weight." << std::endl;
+        std::cerr << "ERROR in Graph::ReadGML - Error when trying to find edge weight." << std::endl;
 				fclose(input);
 				exit(1);
 			}
@@ -330,7 +309,7 @@ void Graph::readGML(const std::string &file_name)
 			else
 			{
 				std::cerr << "ERROR in Graph:ReadGML - Nodes do not form a continous array." << std::endl;
-                fclose(input);
+        fclose(input);
 				exit(1);
 			}
 
@@ -841,7 +820,10 @@ std::size_t Graph::seperateGraphIntoComponents(const std::string &out_dir, const
 		printf("ERROR - cound not open output file (%s)\n", singleton_nn_filename.c_str());
 	}
 	for(std::size_t i = 0; i < num1; ++i)
+	{
 		fprintf(singleton_nn_file, "%lu\n", singletons[i]);
+	}
+		
 	fclose(singleton_nn_file);
 
 	// Record results
@@ -897,8 +879,7 @@ void Graph::saveAsClusterAssignment(const std::string &output_filename)
 			visited[i] = true;
 			
 			// Loop until queue is empty
-			while(start_index < end_index)
-			{
+			while(start_index < end_index) {
 				// Get node ID and dequeue
 				node_id = queue[start_index++];
 
@@ -906,11 +887,9 @@ void Graph::saveAsClusterAssignment(const std::string &output_filename)
 				cur_vert = getPtrToVertex(node_id);
 
 				// Loop through all edges in adjacency list
-				for(std::size_t i = 0; i < cur_vert->getDegree(); ++i)
-				{
+				for(std::size_t i = 0; i < cur_vert->getDegree(); ++i) {
 					// Check if target id is unvisited
-					if(!visited[cur_vert->getTargetId(i)] )
-					{
+					if(!visited[cur_vert->getTargetId(i)]) {
 						// Set value in node ID conversion vector
 						cluster_assingment[cur_vert->getTargetId(i)] = cur_clust;
 						// Add to queue
@@ -924,44 +903,44 @@ void Graph::saveAsClusterAssignment(const std::string &output_filename)
 	}
 	
 	// Record results
-	if((out_file = fopen(output_filename.c_str(), "w")) == NULL)
-	{
+	if((out_file = fopen(output_filename.c_str(), "w")) == NULL) {
 		printf("ERROR in Graph::saveAsClusterAssignment - Could not open output file (%s)\n", output_filename.c_str());
 		exit(1);
 	}
 
 	fprintf(out_file, "%lu nodes %lu clustes %lu edges\n", getNumNodes(), cur_clust, getNumEdges());
 
-	for (std::size_t i = 0; i < getNumNodes(); ++i)
+	for (std::size_t i = 0; i < getNumNodes(); ++i) {
 		fprintf(out_file, "%i ", cluster_assingment[i]);
+	}
 
 	fclose(out_file);
 }
 
-void Graph::printDegreeHistogram(const std::string &filename)
-{
+void Graph::printDegreeHistogram(const std::string &filename) {
 	std::size_t max_degree = 0;
-	for (std::size_t i = 0; i < total_num_nodes; ++i)
-	{
-		if (getDegree(i) > max_degree)
+	for (std::size_t i = 0; i < total_num_nodes; ++i) {
+		if (getDegree(i) > max_degree) {
 			max_degree = getDegree(i);
+		}
 	}
 
 	std::vector<std::size_t> degree_count(max_degree+1, 0);
 
-	for (std::size_t i = 0; i < total_num_nodes; ++i)
+	for (std::size_t i = 0; i < total_num_nodes; ++i) {
 		++degree_count[getDegree(i)];
+	}
 
 	FILE *output;
-	if ((output = fopen(filename.c_str(), "w")) == NULL)
-	{
+	if ((output = fopen(filename.c_str(), "w")) == NULL) {
 		perror("fopen");
 		exit(1);
 	}
 
 	fprintf(output, "Degree,Count\n");
-	for (std::size_t i = 0; i < degree_count.size(); ++i)
+	for (std::size_t i = 0; i < degree_count.size(); ++i) {
 		fprintf(output, "%lu, %lu\n", i, degree_count[i]);
+	}
 	
 	fclose(output);
 }

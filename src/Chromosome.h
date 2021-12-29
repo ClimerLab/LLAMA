@@ -69,7 +69,8 @@ public:
 	void copyNonPointers(Chromosome *);
 	void reset(const bool, const bool);
 	
-	bool splitCluster(Graph &, SplitMem &, const std::size_t);	
+	bool splitCluster(Graph &, SplitMem &, const std::size_t);
+	bool splitClusterV2(Graph &, SplitMem &, const std::size_t);
 	bool redistribute(Graph &, SplitMem &, std::size_t, std::size_t);
 	bool pointMutation(Graph &, const std::size_t);
 	bool canMerge(Graph &, const std::size_t, const std::size_t);
