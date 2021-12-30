@@ -11,8 +11,9 @@
 
 
 ClusteringResults::ClusteringResults(ConfigParser &_parser,
-									 const std::size_t num_nodes) :	parser(_parser),
-									 								POP_SIZE(parser.getSizeT("POP_SIZE")),
+																		 const std::size_t num_nodes,
+																		 const std::size_t max_degree) :	parser(_parser),
+																																			POP_SIZE(parser.getSizeT("POP_SIZE")),
 																	MAX_GEN(parser.getSizeT("MAX_GEN")),
 																	FIT_EQ(parser.getInt("FIT_EQ")),
 																	INIT_MODE(parser.getInt("INIT_MODE")),
@@ -52,7 +53,7 @@ ClusteringResults::ClusteringResults(ConfigParser &_parser,
 
 	// Initialize values
 	my_pop_stats.initialize(MAX_GEN + 1);
-	mem.initialize(num_nodes);
+	mem.initialize(num_nodes, max_degree);
 }
 
 
@@ -312,10 +313,10 @@ void ClusteringResults::runGA_Core(Graph &g, const std::string &clust_filename)
 	best_fitness = pop[parent_gen][chrom_index[0]].getFitness();
 	
 	// Loop through evolution code until desired number of generations is reached
-	//while (generation < max_gen)
+	while (generation < max_gen)
 
 	// Loop through the evolutiond code until the best objective value reaches steady-state
-	while(!stead_state)
+	//while(!stead_state)
 	{
 		// Increment the generation counter
 		++generation;

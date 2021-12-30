@@ -115,7 +115,7 @@ int main(int argc, char **argv)
 	gml_finish = clock();
 
 	// Allocate memory for the population based on the number of nodes in the graph
-	ClusteringResults results(parser, my_graph.getNumNodes());	
+	ClusteringResults results(parser, my_graph.getNumNodes(), my_graph.getMaxDegree());	
 
 	// Check if component is a singleton
 	if (my_graph.getNumNodes() == 1)

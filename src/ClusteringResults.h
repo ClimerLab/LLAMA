@@ -51,7 +51,7 @@ private:
 	const bool STATUS_UPDATES;
 
 public:
-	ClusteringResults(ConfigParser &, const std::size_t);
+	ClusteringResults(ConfigParser &, const std::size_t num_nodes, const std::size_t max_degree);
 	~ClusteringResults();
 
 	void initializePopulation(Graph &);

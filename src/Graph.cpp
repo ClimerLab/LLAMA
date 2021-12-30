@@ -31,6 +31,16 @@ std::size_t Graph::getTotalNumEdges() const {
 	return total_num_edges;
 }
 
+std::size_t Graph::getMaxDegree() const {
+	std::size_t max_degree = 0;
+	for (std::size_t i = 0; i < vertices.size(); ++i) {
+		if (vertices[i].getDegree() > max_degree) {
+			max_degree = vertices[i].getDegree();
+		}
+	}
+	return max_degree;
+}
+
 Vertex* Graph::getPtrToVertex(const std::size_t index) {
 	assert(index < vertices.size());
 	return &(vertices[index]);
@@ -385,7 +395,7 @@ void Graph::readGraph(const std::string &file_name)
 	// Check if the number of strings found is an expected value
 	if ((num_spaces < 1) || (num_spaces > 2))
 	{
-        std::cerr << "ERROR in Graph::ReadGraph - Header row has " << num_spaces+1
+    std::cerr << "ERROR in Graph::ReadGraph - Header row has " << num_spaces+1
             << "strings, but only 2 or 3 are expected." << std::endl;
 		exit(1);
 	}
@@ -407,15 +417,16 @@ void Graph::readGraph(const std::string &file_name)
 	// Check if the expected number of nodes matches the found number of nodes
 	if (num_nodes_found != num_nodes_expected)
 	{
-        std::cerr << "ERROR in Graph::ReadGraph - Expected " << num_nodes_expected << "nodes, but found " << num_nodes_found << std::endl;
+    std::cerr << "ERROR in Graph::ReadGraph - Expected " << num_nodes_expected << " nodes, but found " << num_nodes_found << std::endl;
 		exit(1);
 	}
 
 	// Allocate memory based on number of nodes found
-    vertices.reserve(num_nodes_found);
+  vertices.reserve(num_nodes_found);
 	Vertex new_vert;
-	for(std::size_t i = 0; i < num_nodes_found; ++i)
+	for (std::size_t i = 0; i < num_nodes_found; ++i) {
 		vertices.push_back(new_vert);
+	}	
 
 	// Reset to second line in file
 	input.clear();

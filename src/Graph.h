@@ -31,6 +31,7 @@ public:
     std::size_t getNumEdges() const;
     std::size_t getTotalNumNodes() const;
     std::size_t getTotalNumEdges() const;
+    std::size_t getMaxDegree() const;
     Vertex* getPtrToVertex(const std::size_t);
 
     void setTotalNumNodes(const std::size_t);

@@ -24,7 +24,7 @@ CCOOBJ = CombClustOut.o
 AJIOBJ = AverageJI.o
 SEPOBJ = SeperateGraphIntoComponents.o Graph.o Vertex.o Edge.o
 FBCOBJ = FindBestComp.o
-COMBOBJ = CombComp.o Chromosome.o Cluster.o Node.o Graph.o Vertex.o Edge.o UtilityFunctions.o ConfigParser.o
+COMBOBJ = CombComp.o Chromosome.o Cluster.o Node.o Graph.o Vertex.o Edge.o UtilityFunctions.o ConfigParser.o SplitMem.o
 LLAMAOBJ = LLAMA.o PopulationStat.o ClusteringResults.o Chromosome.o Cluster.o IslandStat.o Graph.o Vertex.o Edge.o Node.o UtilityFunctions.o SplitMem.o ConfigParser.o
 CGCAOBJ = ConGraphToCA.o Graph.o Vertex.o Edge.o
 

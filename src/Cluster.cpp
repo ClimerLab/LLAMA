@@ -231,13 +231,13 @@ Node * Cluster::removeNode(const std::size_t node_id, const std::size_t node_deg
 std::size_t Cluster::getNodeID(const std::size_t node_index)
 {
 	assert(first_node != NULL); // Check if cluster is empty
-	assert(node_index <= num_nodes);
+	assert(node_index < num_nodes);
 
 	// Get pointer to first node
 	Node *cur_node = getFirstNode();
 
 	// Loop until the node_index is reached
-	for (std::size_t i_node = 1; i_node <= node_index; +i_node)
+	for (std::size_t i_node = 0; i_node < node_index; ++i_node)
 		cur_node = cur_node->getNextNode();
 
 	return cur_node->getID();

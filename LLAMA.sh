@@ -1,9 +1,9 @@
 #!/bin/bash
 
-GML_FILE=/media/ken/ExtraSpace/School/Research/DataSets/networks/celegansneural.graph
+GML_FILE=/media/ken/ExtraSpace/School/Research/DataSets/networks/as_22july06.graph
 RESULTS_DIR=/media/ken/ExtraSpace/School/Research/LLAMA/
-OUTPUT_TAG=celegansneural_steadystate_Q
-NUM_ISLANDS=30
+OUTPUT_TAG=as_22july06V2
+NUM_ISLANDS=10
 CFG_FILE=LLAMA_Q.cfg
 
 OUTPUT_DIR=$RESULTS_DIR$OUTPUT_TAG/

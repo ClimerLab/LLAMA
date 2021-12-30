@@ -6,7 +6,7 @@
 #include "ConfigParser.h"
 #include "UtilityFunction.h"
 #include "SplitMem.h"
-#include "SimpleGraph.h"
+//#include "SimpleGraph.h"
 #include <cstdio>
 #include <sstream>
 #include <fstream>
@@ -655,7 +655,7 @@ void Chromosome::splitInit(Graph &g, SplitMem &mem, const std::size_t min_num_cl
 		split_index = PickSizeT(0, getLastClustIndex());
 		
 		if (getCluster(split_index)->getNumNodes() > 1)
-			splitCluster(g, mem, split_index);		
+			splitClusterV2(g, mem, split_index);		
 	}
 
 	// Set the initial number of cluster for chromosome and reset the number of splits
@@ -936,7 +936,7 @@ void Chromosome::reset(const bool delete_clusters, const bool reset_clust_num)
 }
 
 /*
-bool Chromosome::splitCluster(Graph &g, SplitMem &mem, const std::size_t cluster_index)
+bool Chromosome::V2(Graph &g, SplitMem &mem, const std::size_t cluster_index)
 {
 	assert(cluster_index < num_clusters);
 	assert(getCluster(cluster_index)->getNumNodes() > 1);
@@ -1172,7 +1172,7 @@ bool Chromosome::splitCluster(Graph &g, SplitMem &mem, const std::size_t cluster
 	{
 		printf("Nodes in part: %lu\n", nodes_part);
 		// Print error
-		printf("ERROR in Chromosome::SplitCluster - Not all nodes in partition\n");
+		printf("ERROR in Chromosome::V2 - Not all nodes in partition\n");
 		exit(1);
 		return false;
 	}
@@ -1209,6 +1209,7 @@ bool Chromosome::splitCluster(Graph &g, SplitMem &mem, const std::size_t cluster
 }
 */
 
+/*
 bool Chromosome::splitCluster(Graph &g, SplitMem &mem, const std::size_t cluster_index) {
 	assert(cluster_index < num_clusters);
 	assert(getCluster(cluster_index)->getNumNodes() > 1);
@@ -1439,7 +1440,7 @@ bool Chromosome::splitCluster(Graph &g, SplitMem &mem, const std::size_t cluster
 	if (nodes_part != clust_to_split->getNumNodes())
 	{
 		// Print error
-		printf("ERROR in Chromosome::SplitCluster - Not all nodes in partition");
+		printf("ERROR in Chromosome::V2 - Not all nodes in partition");
 		return false;
 	}
 
@@ -1473,173 +1474,121 @@ bool Chromosome::splitCluster(Graph &g, SplitMem &mem, const std::size_t cluster
 	// Return success
 	return true;
 }
+*/
 
 bool Chromosome::splitClusterV2(Graph &g, SplitMem &mem, const std::size_t cluster_index) {
 	assert(cluster_index < num_clusters);
 	assert(getCluster(cluster_index)->getNumNodes() > 1);
 
+	std::size_t tmp_index, node_id, target_id, cur_part = 0;
+
 	// Get a pointer to the cluster to split
-	Cluster *clust_to_split  = this->getCluster(cluster_index);
-
-	SimpleGraph simple_g(clust_to_split->getNumNodes());
-	std::vector<std::size_t> part_num(g.getNumNodes(), 2);
-	std::vector<std::vector<std::size_t>> part;
-	std::vector<std::size_t> part_row(clust_to_split->getNumNodes()-1);
-	part.push_back(part_row);
-	part.push_back(part_row);
-
-
-	Node *cur_node;
-	std::size_t tmp_index, node_id, local_index, nodes_in_part[2] = {0, 0};
-	std::size_t index_in_part, target_id;
-	std::size_t tmp_index1, tmp;
-	bool cur_part = 0, node_found;
-	
-	// Get pointer to first node in cluster
-	cur_node = clust_to_split->getFirstNode();
-
-	// Set values based on nodes in array to split
-	for (std::size_t i_node = 0; i_node < clust_to_split->getNumNodes(); ++i_node) {
-		mem.index_in_clust[cur_node->getID()] = i_node; // Indicate the index in the cluster of each node
-		mem.nodes_to_pick[i_node] = cur_node->getID(); // Add each node to the list of available nodes
+	Cluster *clust_to_split  = this->getCluster(cluster_index);	
+	mem.reset();
 		
+	// Get pointer to first node in cluster
+	Node *cur_node = clust_to_split->getFirstNode();
+
+	// Create sub-graph based on nodes in cluster
+	for (std::size_t i_node = 0; i_node < clust_to_split->getNumNodes(); ++i_node) {				
 		Vertex *cur_vert = g.getPtrToVertex(cur_node->getID());
 		// Add edges to simple graph if node is in cluster to split
 		for (std::size_t j = 0; j < cur_vert->getDegree(); ++j) {
 			if (cluster_num[cur_vert->getTargetId(j)] == cluster_index) {
-				simple_g.addEdge(cur_node->getID(), cur_vert->getTargetId(j), true);
+				mem.addEdge(cur_node->getID(), cur_vert->getTargetId(j));
 			}		
 		}
 		
-		cur_node = cur_node->getNextNode(); // Go to the next edge
+		cur_node = cur_node->getNextNode(); // Go to the next node
 	}
+
+	//mem.printPartNumber();
+	//mem.printPartPool();
+	//mem.printGraph();
+
+	// Add node to partition 0
+	tmp_index = PickSizeT(0, clust_to_split->getNumNodes() - 1); // Select index from into cluster
+	node_id = clust_to_split->getNodeID(tmp_index); // Get ID of selected node
+	mem.addNodeToPartition(node_id, 0);
+	//mem.printPartNumber();
+	//mem.printPartPool();
+	//mem.printGraph();
+
+	std::size_t tmp_index1 = tmp_index;
+	while (tmp_index1 == tmp_index) {
+		tmp_index = PickSizeT(0, clust_to_split->getNumNodes() - 1); // Pick a node from the cluster
+	}
+	node_id = clust_to_split->getNodeID(tmp_index); // Get ID of selected node
+	mem.addNodeToPartition(node_id, 1);
+	//mem.printPartNumber();
+	//mem.printPartPool();
+	//mem.printGraph();
 	
-	// Add node to partition 1 and add any neighbors in simple_p to 
+	// Loop until both partition pools are empty
+	while ((mem.getPoolSize(0) > 0) || (mem.getPoolSize(1) > 0)) {
+		// Check that queue is not empty
+		if (mem.getPoolSize(cur_part) > 0) {
+			// Pick a node from the current partition pool and get the index_in_part
+			tmp_index = PickSizeT(0, mem.getPoolSize(cur_part) - 1);
+			node_id = mem.getPoolValue(cur_part, tmp_index);
 
+			// Check if there are any adjacent nodes in subgraph
+			while (mem.getNumEdges(node_id) > 0) {
+				bool node_found = false; // Reset flag
 
+				tmp_index = PickSizeT(0, mem.getNumEdges(node_id) - 1); // Pick edge at random
+				target_id = mem.vertices[node_id][tmp_index]; // Get node ID of edge target
 
+				//fprintf(stderr, "Target ID: %lu - partition number: %lu\n", target_id, mem.getPartNumber(target_id));
 
-	// Pick a node from the cluster
-	tmp_index1 = PickSizeT(0, clust_to_split->getNumNodes() - 1);
-	// Add it to partition 1 and increment nodes_in_part1
-	mem.part1[nodes_in_part[0]++] = mem.nodes_to_pick[tmp_index1];
-	// Indicate it has been added to partition
-	mem.in_part[mem.nodes_to_pick[tmp_index1]] = true;
-	mem.part_num[tmp_index1] = 1;
-
-	// Swap the node with the last valid node in the array
-	tmp = mem.nodes_to_pick[tmp_index1]; // Save the value at 'tmp_index1' 
-	// Override the value at 'tmp_index1' with the last value in the array
-	mem.nodes_to_pick[tmp_index1] = mem.nodes_to_pick[clust_to_split->getNumNodes() - 1];
-	// Override the last variable in the array with the saved temp variable
-	mem.nodes_to_pick[clust_to_split->getNumNodes() - 1] = tmp;
-
-	// Pick a node from the cluster and add it to partition 2 (don't allow the last variable in the array to be picked)
-	tmp_index = PickSizeT(0, clust_to_split->getNumNodes() - 2);
-	// Add it to partition 2 and increment nodes_in_part2
-	mem.part2[nodes_in_part[1]++] = mem.nodes_to_pick[tmp_index];
-	// Indicate it has been added to partition
-	mem.in_part[mem.nodes_to_pick[tmp_index]] = true;
-
-	// Indicate to which partition the node at 'tmp_index' was added. This needs to be based on the original
-	// order of the nodes.
-	// Check if the same index value was picked twice
-	if (tmp_index == tmp_index1) {
-		// Since the node that was picked at 'tmp_index' had to be at the last index origianlly, update
-		// the 'part_num' at the last index
-		mem.part_num[clust_to_split->getNumNodes() - 1] = 0;
-	}	else {
-		// Update the 'part_num' at the selected index
-		mem.part_num[tmp_index] = 0;
-	}
-
-	// Swap the last node and the first node picked back
-	tmp = mem.nodes_to_pick[tmp_index1]; // Save the value at 'tmp_index1' 
-	// Override the value at 'tmp_index1' with the last value in the array
-	mem.nodes_to_pick[tmp_index1] = mem.nodes_to_pick[clust_to_split->getNumNodes() - 1];
-	// Override the last variable in the array with the saved temp variable
-	mem.nodes_to_pick[clust_to_split->getNumNodes() - 1] = tmp;
-
-	// Loop until both partitions are empty
-	while ((nodes_in_part[0] > 0) || (nodes_in_part[1] > 0)) {
-		// Check that queue1 is not empty
-		if (nodes_in_part[cur_part] > 0) {
-			// Pick a node from partition 1 and get the ID
-			index_in_part = PickSizeT(0, nodes_in_part[cur_part] - 1);
-			node_id = mem.part1[index_in_part];
-
-			// Get the index into the local graph corresponding to the node ID
-			local_index = mem.index_in_clust[node_id];
-
-			// Loop untill vertex has no more edges
-			while (mem.has_edges[local_index]) {
-				node_found = false; // Reset flag
-
-				// Pick edge at random
-				tmp_index = PickSizeT(0, mem.end_index[local_index]);
-
-				// Get target ID of selected edge
-				target_id = g.getPtrToVertex(node_id)->getTargetId(tmp_index);
-
-				// Check if target ID is in the cluster to split and is not in a partition
-				if (mem.in_clust[target_id] && !mem.in_part[target_id]) {
-					// Set flag indicating node has been found to add to partition
+				// Check if node is not partitioned
+				if (mem.getPartNumber(target_id) == 2) {
 					node_found = true;
-					// Add node to partition and increment number of nodes in partition 1
-					mem.part1[nodes_in_part[cur_part]++] = target_id;
-					// Indicate it has been added to a partition
-					mem.in_part[target_id] = true;						
-					// Indicate that the node has been added to partition 1
-					mem.part_num[mem.index_in_clust[target_id]] = 1;
+
+					// Add target_id to partition pool and update partition number
+					mem.addNodeToPartition(target_id, cur_part);
+					//mem.printPartNumber();
+					//mem.printPartPool();
 				}
 
-				// Check if the edge at the last valid index was selected
-				if(tmp_index != mem.end_index[local_index]) {
-					g.getPtrToVertex(node_id)->swapEdges(tmp_index, mem.end_index[local_index]);
-				}
-					
-				if(mem.end_index[local_index] == 0) {
-					mem.has_edges[local_index] = false;
-				} else {
-					--mem.end_index[local_index]; // Decrement the index of the last valid edge
-				}
+				mem.removeEdgeByIndex(node_id, tmp_index);
+				//mem.printGraph();
 
-				// Check if node was found to add to partition
 				if (node_found) {
-					break; // break while loop
-				}						
+					break;
+				}
 			}
 
-			// Check if local vertex is empty now
-			if (mem.has_edges[local_index] == false) {
-				// Override the value at 'index_in_part1' with the value at the last index in the partition
-				mem.part1[index_in_part1] = mem.part1[nodes_in_part1 - 1];
-	
-				--nodes_in_part1; // Derement the number of nodes in partition 1
+			// Check if there are zero edges from 'node_id'
+			if (mem.getNumEdges(node_id) == 0) {
+				mem.removeNodeFromPartitionPool(node_id, cur_part);
+				//mem.printPartPool();
 			}
-			
-			cur_part = !cur_part; // Switch current partition
 		}
+		cur_part = (cur_part + 1) % 2; // Switch current partition		
 	}
 
 	// Check that all nodes were partitioned
-	if (nodes_in_part[0] + nodes_in_part[1] != clust_to_split->getNumNodes()) {		
-		printf("ERROR in Chromosome::SplitCluster - Not all nodes in partition"); // Print error
+	std::size_t count = 0;
+	for (std::size_t i = 0; i < mem.num_nodes; ++i) {
+		if (mem.getPartNumber(i) != 2) {
+			++count;
+		}
+	}
+	if (count != clust_to_split->getNumNodes()) {		
+		printf("ERROR in Chromosome::V2 - Not all nodes in partition\n"); // Print error
+		fprintf(stderr, "Partitioned %lu of %lu nodes\n", count, clust_to_split->getNumNodes());
 		return false;
 	}
 
 	// Add new cluster
 	this->addCluster();
 
-	// Save the number of nodes in the cluster to split
-	std::size_t orig_num_nodes = clust_to_split->getNumNodes();
-
 	// Loop through all nodes in the cluster to split
-	for (std::size_t j_node = 0; j_node < orig_num_nodes; ++j_node) {
-		// Check if the j_node was in partition 2
-		if(mem.part_num[j_node] == 0) {
-			// Move the node to the new cluster
-			this->moveNode(g, cluster_index, getLastClustIndex(), mem.nodes_to_pick[j_node]);
+	for (std::size_t j_node = 0; j_node < mem.num_nodes; ++j_node) {
+		// Check if the j_node was in partition 1
+		if(mem.getPartNumber(j_node) == 1) {
+			this->moveNode(g, cluster_index, getLastClustIndex(), j_node); // Move the node to the new cluster
 		}
 	}
 
@@ -1655,6 +1604,8 @@ bool Chromosome::splitClusterV2(Graph &g, SplitMem &mem, const std::size_t clust
 
 	// Return success
 	return true;
+
+	exit(1);
 }
 
 
@@ -1683,7 +1634,7 @@ bool Chromosome::redistribute(Graph &g, SplitMem &mem, std::size_t clust_index1,
 	if (result)
 	{
 		// Split the newly merges cluster
-		result = this->splitCluster(g, mem, clust_index1);
+		result = this->splitClusterV2(g, mem, clust_index1);
 
 		// Decrement the number of splits
 		--num_splits;
@@ -2116,7 +2067,7 @@ bool Chromosome::mutate(Graph &g, SplitMem &mem)
 		// Check if the cluster has enough nodes to split
 		if (clust_to_split->getNumNodes() > 1)
 		{
-			splitCluster(g, mem, clust_split_index);
+			splitClusterV2(g, mem, clust_split_index);
 		}
 	}
 	//}
@@ -2271,7 +2222,7 @@ bool Chromosome::maintainNumClusters(Graph &g, SplitMem &mem, const std::size_t 
 		// Check if the cluster has enough nodes to split
 		if (clust_to_split->getNumNodes() > 1)
 		{
-			splitCluster(g, mem, clust_split_index);
+			splitClusterV2(g, mem, clust_split_index);
 			num_clust_changed = true;
 		}
 	}
